@@ -1,13 +1,14 @@
-// book constructor
+// book class
 function Book (title, author, isbn) {
     this.title = title;
     this.author = author;
     this.isbn = isbn;
 }
 
-// UI constructor
+// UI class
 function Ui () { }
 
+// ui constructor to add book to the list
 Ui.prototype.addBookToList = function(book) {
     // creating a table row
     const row = document.createElement('tr');
@@ -21,6 +22,13 @@ Ui.prototype.addBookToList = function(book) {
 
     // append the row to table body
     document.getElementById('book-list').appendChild(row);
+}
+
+// ui constructor to clear form fields
+Ui.prototype.clearFields = function() {
+    document.getElementById('title').value = '';
+    document.getElementById('author').value = '';
+    document.getElementById('isbn').value = '';
 }
 
 // eventlistner on submit
@@ -38,6 +46,9 @@ document.getElementById('book-form').addEventListener('submit', function(e) {
 
     // sending the book info to ui constructor to append the info to the list
     ui.addBookToList(book);
+
+    // clear fields
+    ui.clearFields();
 
     e.preventDefault();
 });
