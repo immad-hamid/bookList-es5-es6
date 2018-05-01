@@ -38,17 +38,21 @@ document.getElementById('book-form').addEventListener('submit', function(e) {
           author = document.getElementById('author').value,
           isbn = document.getElementById('isbn').value;
 
-    // instantiating Book class
-    const book = new Book(title, author, isbn);
+    if (title === '' || author === '' || isbn === '') { // if any of the form field is empty
+        alert('Nothing');
+    } else { // if the fields are not empty
+        // instantiating Book class
+        const book = new Book(title, author, isbn);
 
-    // instantiating the ui class
-    const ui = new Ui;
+        // instantiating the ui class
+        const ui = new Ui;
 
-    // sending the book info to ui constructor to append the info to the list
-    ui.addBookToList(book);
+        // sending the book info to ui constructor to append the info to the list
+        ui.addBookToList(book);
 
-    // clear fields
-    ui.clearFields();
+        // clear fields
+        ui.clearFields();
+    }
 
     e.preventDefault();
 });
