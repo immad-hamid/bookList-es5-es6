@@ -55,11 +55,59 @@ class Ui {
     // ui constructor to delte a book
     deleteBook(target) {
         if (target.className === 'delete') {
-            console.log('has delete class');
             target.parentElement.parentElement.remove();
         }
     }
  }
+
+//  class store for making data persistent
+class Store {
+    static getBooks () {
+        let books;
+        if (localStorage.getItem('books') === null) {
+            books = [];
+        } else {
+            books = JSON.parse(localStorage.getItem('books'));
+        }
+        return books;
+    }
+
+    static displayBooks () {
+        // getting items already stored
+        const books = Store.getBooks();
+        
+        books.forEach(book => {
+            // instantiating ui class
+            const ui = new Ui();
+            // adding the books from LS
+            ui.addBookToList(book);
+        });
+    }
+
+    static addBook (book) {
+        // getting items already stored
+        const books = Store.getBooks();
+        // pushing the item in our main array
+        books.push(book);
+        // now setting the array again in our LS
+        localStorage.setItem('books', JSON.stringify(books));
+    }
+
+    static removeBook (target) {
+        const books = Store.getBooks();
+
+        books.forEach((book, index) => {
+            if (book.isbn === target) {
+                books.splice(index, 1);
+            }
+        });
+        // now setting the LS again
+        localStorage.setItem('books', JSON.stringify(books));
+    }
+}
+
+// DOM loadEvent
+document.addEventListener('DOMContentLoaded', Store.displayBooks);
 
 // event listner for submit
 document.getElementById('book-form').addEventListener('submit', (e) => {
@@ -73,8 +121,6 @@ document.getElementById('book-form').addEventListener('submit', (e) => {
 
     // instantiating the ui class
     const ui = new Ui;
-    
-    console.log(ui);
 
     if (title === '' || author === '' || isbn === '') { // if any of the form field is empty
         
@@ -85,6 +131,9 @@ document.getElementById('book-form').addEventListener('submit', (e) => {
 
         // sending the book info to ui constructor to append the info to the list
         ui.addBookToList(book);
+
+        // sending details to store too so that we could use them
+        Store.addBook(book);
 
         // clear fields
         ui.clearFields();
@@ -104,6 +153,9 @@ document.getElementById('book-list').addEventListener('click', (e) => {
 
     // delete method
     ui.deleteBook(e.target);
+
+    // delete book from LS
+    Store.removeBook(e.target.parentElement.previousElementSibling.textContent);
 
     // alert on delete
     ui.showAlert('The selected book has been deleted', 'error');

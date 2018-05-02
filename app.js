@@ -1,11 +1,11 @@
-// book class
+// book constructor class
 function Book (title, author, isbn) {
     this.title = title;
     this.author = author;
     this.isbn = isbn;
 }
 
-// UI class
+// UI constructor class
 function Ui () { }
 
 // ui constructor to add book to the list
@@ -53,10 +53,71 @@ Ui.prototype.showAlert = function (msgText, className) {
 // ui constructor to delte a book
 Ui.prototype.deleteBook = function(target) {
     if (target.className === 'delete') {
-        console.log('has delete class');
         target.parentElement.parentElement.remove();
     }
 }
+
+//  class store for making data persistent
+function Store() { }
+
+Store.prototype.getBooks = function() {
+    let books;
+    if (localStorage.getItem('books') === null) {
+        books = [];
+    } else {
+        books = JSON.parse(localStorage.getItem('books'));
+    }
+    return books;
+}
+
+Store.prototype.displayBooks = function() {
+    // instantiating store class
+    const store = new Store();
+    // getting items already stored
+    const books = store.getBooks();
+    
+    books.forEach(book => {
+        // instantiating ui class
+        const ui = new Ui();
+        // adding the books from LS
+        ui.addBookToList(book);
+    });
+}
+
+Store.prototype.addBook = function(book) {
+    // instantiating store class
+    const store = new Store();
+    // getting items already stored
+    const books = store.getBooks();
+
+    // pushing the item in our main array
+    books.push(book);
+    // now setting the array again in our LS
+    localStorage.setItem('books', JSON.stringify(books));
+}
+
+Store.prototype.removeBook = function(target) {
+    // instantiating store class
+    const store = new Store();
+    // getting items already stored
+    const books = store.getBooks();
+
+    books.forEach((book, index) => {
+        if (book.isbn === target) {
+            books.splice(index, 1);
+        }
+    });
+    // now setting the LS again
+    localStorage.setItem('books', JSON.stringify(books));
+}
+
+// DOM loadEvent
+document.addEventListener('DOMContentLoaded', function() {
+    // instantiating store class
+    const store = new Store();
+    // showing data sets if exist
+    store.displayBooks();
+});
 
 // event listner for submit
 document.getElementById('book-form').addEventListener('submit', function(e) {
@@ -71,6 +132,9 @@ document.getElementById('book-form').addEventListener('submit', function(e) {
     // instantiating the ui class
     const ui = new Ui;
 
+    // instantiating store class
+    const store = new Store();
+
     if (title === '' || author === '' || isbn === '') { // if any of the form field is empty
 
         // creating alert
@@ -80,6 +144,9 @@ document.getElementById('book-form').addEventListener('submit', function(e) {
 
         // sending the book info to ui constructor to append the info to the list
         ui.addBookToList(book);
+
+        // adding book to our LS
+        store.addBook(book);
 
         // clear fields
         ui.clearFields();
@@ -99,6 +166,12 @@ document.getElementById('book-list').addEventListener('click', function(e) {
 
     // delete method
     ui.deleteBook(e.target);
+
+    // instantiating store class
+    store = new Store();
+
+    // delete book from LS
+    store.removeBook(e.target.parentElement.previousElementSibling.textContent);
 
     // alert on delete
     ui.showAlert('The selected book has been deleted', 'error');
